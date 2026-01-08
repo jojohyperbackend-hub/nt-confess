@@ -1,0 +1,10 @@
+@import "tailwindcss";
+:root {
+  --color-pink-light: #ffe4e1;    /* lembut, background */
+  --color-pink: #ffb6c1;          /* utama, tombol / highlight */
+  --color-pink-dark: #ff69b4;     /* lebih kontras, hover / active */
+  --color-white: #ffffff;          /* teks / background ringan */
+  --color-gray: #f5f5f5;           /* netral, background sekunder */
+  --color-red: #ff4d6d;            /* accent / error / perhatian */
+  --color-purple-light: #f3e5f5;   /* variasi, soft tone */
+}
