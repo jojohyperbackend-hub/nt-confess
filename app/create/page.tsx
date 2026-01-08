@@ -3,8 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+/**
+ * Encode UTF-8 → Base64 URL Safe
+ */
+function encodeBase64Url(str: string) {
+  return btoa(encodeURIComponent(str))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 export default function CreateConfessPage() {
   const router = useRouter();
+
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [emotion, setEmotion] = useState("❤️");
@@ -14,80 +25,93 @@ export default function CreateConfessPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Generate URL encode untuk share link
-    const params = new URLSearchParams({
-      name,
-      message,
-      emotion,
-    });
-    const shareLink = `/read?${params.toString()}`;
+    try {
+      const payload = encodeBase64Url(
+        JSON.stringify({
+          name,
+          message,
+          emotion,
+          createdAt: new Date().toISOString(),
+        })
+      );
 
-    // Redirect langsung ke page read dengan query params
-    router.push(shareLink);
-
-    setIsSubmitting(false);
+      router.push(`/read/${payload}`);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal membuat confess 😢");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-pink-light px-4">
-      <h2 className="text-3xl font-bold text-pink-dark mb-6 text-center">
-        Buat Confessmu 💌
-      </h2>
+    <div className="min-h-screen flex items-center justify-center bg-pink-light px-4">
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold text-pink-dark mb-6 text-center">
+          Buat Confess 💌
+        </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md flex flex-col gap-4"
-      >
-        {/* Nama pengirim */}
-        <div>
-          <label className="block text-pink-dark font-medium mb-1">Namamu</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Misal: Rara"
-            required
-            className="w-full px-3 py-2 rounded-lg border border-pink-light focus:outline-none focus:ring-2 focus:ring-pink"
-          />
-        </div>
-
-        {/* Pesan confess */}
-        <div>
-          <label className="block text-pink-dark font-medium mb-1">Pesanmu</label>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Tulis perasaanmu..."
-            required
-            rows={4}
-            className="w-full px-3 py-2 rounded-lg border border-pink-light focus:outline-none focus:ring-2 focus:ring-pink"
-          ></textarea>
-        </div>
-
-        {/* Pilihan emosi */}
-        <div>
-          <label className="block text-pink-dark font-medium mb-1">Pilih Emosi</label>
-          <select
-            value={emotion}
-            onChange={(e) => setEmotion(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-pink-light focus:outline-none focus:ring-2 focus:ring-pink"
-          >
-            <option value="❤️">❤️ Cinta</option>
-            <option value="😊">😊 Senang</option>
-            <option value="😳">😳 Malu</option>
-            <option value="😢">😢 Sedih</option>
-          </select>
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-4 bg-pink text-white font-semibold py-2 rounded-full shadow-md hover:bg-pink-dark transition-all duration-300"
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-4"
         >
-          {isSubmitting ? "Membuat..." : "Buat Confess 💖"}
-        </button>
-      </form>
+          <div>
+            <label className="block text-pink-dark font-medium mb-1">
+              Namamu
+            </label>
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Misal: Rara"
+              className="w-full px-3 py-2 rounded-lg border border-pink-light focus:ring-2 focus:ring-pink"
+            />
+          </div>
+
+          <div>
+            <label className="block text-pink-dark font-medium mb-1">
+              Pesan Confess
+            </label>
+            <textarea
+              required
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Aku mau jujur sama kamu..."
+              className="w-full px-3 py-2 rounded-lg border border-pink-light focus:ring-2 focus:ring-pink"
+            />
+          </div>
+
+          <div>
+            <label className="block text-pink-dark font-medium mb-1">
+              Emosi
+            </label>
+            <select
+              value={emotion}
+              onChange={(e) => setEmotion(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-pink-light focus:ring-2 focus:ring-pink"
+            >
+              <option value="❤️">❤️ Cinta</option>
+              <option value="😊">😊 Senang</option>
+              <option value="😳">😳 Malu</option>
+              <option value="😢">😢 Sedih</option>
+              <option value="🥰">🥰 Sayang</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-4 bg-pink text-white font-semibold py-2 rounded-full shadow-md hover:bg-pink-dark disabled:opacity-60"
+          >
+            {isSubmitting ? "Membuat..." : "Buat Confess 💖"}
+          </button>
+        </form>
+
+        <p className="text-center text-pink-dark/60 text-sm mt-4">
+          💡 Link bisa dibuka di semua device & browser
+        </p>
+      </div>
     </div>
   );
 }
