@@ -19,14 +19,17 @@ export default function ReadConfessPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
-
-  // URL shareable: window.location.href
   const [shareLink, setShareLink] = useState("");
 
+  // Ambil share link universal
   useEffect(() => {
     if (!code) return;
-
     setShareLink(window.location.href);
+  }, [code]);
+
+  // Fetch confess dari API
+  useEffect(() => {
+    if (!code) return;
 
     const fetchConfess = async () => {
       setLoading(true);
@@ -34,13 +37,13 @@ export default function ReadConfessPage() {
 
       try {
         const res = await fetch(`/api/route?code=${code}`, {
-          cache: "no-store",
+          cache: "no-store", // paksa fetch ambil fresh JSON
         });
 
         if (!res.ok) {
           const text = await res.text();
           console.error("API error response:", text);
-          throw new Error(`Confess tidak ditemukan`);
+          throw new Error("Confess tidak ditemukan");
         }
 
         const contentType = res.headers.get("content-type");
@@ -90,7 +93,7 @@ export default function ReadConfessPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-pink-light px-4 space-y-6">
       {/* Share Link */}
       <div className="bg-white p-3 rounded-xl shadow-md w-full max-w-md text-center">
-        <p className="text-pink-dark/80 mb-2">💌 Link Confess ini bisa dibagikan:</p>
+        <p className="text-pink-dark/80 mb-2">💌 Link Confess ini bisa dibagikan ke semua orang:</p>
         <input
           type="text"
           readOnly
@@ -98,7 +101,7 @@ export default function ReadConfessPage() {
           className="w-full px-3 py-2 rounded-lg border border-pink-light text-pink-dark focus:outline-none focus:ring-2 focus:ring-pink"
           onClick={(e) => (e.target as HTMLInputElement).select()}
         />
-        <p className="text-sm text-pink-dark/50 mt-1">Klik dan copy link untuk dibagikan 💖</p>
+        <p className="text-sm text-pink-dark/50 mt-1">Klik & copy link, bisa dibuka di browser/device/tab lain 💖</p>
       </div>
 
       {/* Step-by-Step Confess */}
