@@ -10,28 +10,22 @@ export default function CreateConfessPage() {
   const [emotion, setEmotion] = useState("❤️");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
-      // Panggil API (app/api/route.ts)
-      const res = await fetch("/api/route", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, message, emotion }),
-      });
-      const data = await res.json();
+    // Generate URL encode untuk share link
+    const params = new URLSearchParams({
+      name,
+      message,
+      emotion,
+    });
+    const shareLink = `/read?${params.toString()}`;
 
-      if (data?.code) {
-        // Redirect ke halaman read/[code]
-        router.push(`/read/${data.code}`);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Redirect langsung ke page read dengan query params
+    router.push(shareLink);
+
+    setIsSubmitting(false);
   };
 
   return (
